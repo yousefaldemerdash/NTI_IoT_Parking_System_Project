@@ -18,12 +18,12 @@ System Architecture :
 
 Node_Red Flow : 
 
-![Node-RED Flow Architecture](Circuit_Schematic.PNG)
+![Node-RED Flow Architecture](Node_Red_Dashboard.PNG)
 
 
 Hardware Circuit : 
 
-![ESP32 Wokwi Circuit Setup](circuit_schematic.PNG)
+![ESP32 Wokwi Circuit Setup](Circuit_Schematic.PNG)
 
 
 Telegram Bot Entry/Exit Messages : 

@@ -18,7 +18,7 @@ System Architecture :
 
 Node_Red Flow : 
 
-![Node-RED Flow Architecture](Node_Red_Dashboard.png)
+![Node-RED Flow Architecture](Circuit_Schematic.PNG)
 
 
 Hardware Circuit : 

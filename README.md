@@ -13,7 +13,7 @@ Features :
 
 System Architecture :
 
-![System Architecture Diagram](system_architecture.png)
+![System Architecture Diagram](system_architecture.PNG)
 
 
 Node_Red Flow : 
@@ -23,14 +23,14 @@ Node_Red Flow :
 
 Hardware Circuit : 
 
-![ESP32 Wokwi Circuit Setup](circuit_schematic.png)
+![ESP32 Wokwi Circuit Setup](circuit_schematic.PNG)
 
 
 Telegram Bot Entry/Exit Messages : 
 
-![ESP32 Wokwi Circuit Setup](Telegram_Entry_Messages.png)
+![ESP32 Wokwi Circuit Setup](Telegram_Entry_Messages.PNG)
 
-![ESP32 Wokwi Circuit Setup](Telegram_Exit_Messages.png)
+![ESP32 Wokwi Circuit Setup](Telegram_Exit_Messages.PNG)
 
 
 Project Repository Structure :

@@ -1,0 +1,216 @@
+[
+    {
+        "id": "54fda9e345581e36",
+        "type": "tab",
+        "label": "Flow 1",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "beb8bab5c6077d04",
+        "type": "mqtt in",
+        "z": "54fda9e345581e36",
+        "name": "",
+        "topic": "iot/car_parking/status",
+        "qos": "2",
+        "datatype": "utf8",
+        "broker": "8dd7db4e7092adcb",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 280,
+        "y": 260,
+        "wires": [
+            [
+                "1cd3b97172e84f79"
+            ]
+        ]
+    },
+    {
+        "id": "1cd3b97172e84f79",
+        "type": "json",
+        "z": "54fda9e345581e36",
+        "name": "",
+        "property": "payload",
+        "action": "",
+        "pretty": false,
+        "x": 510,
+        "y": 260,
+        "wires": [
+            [
+                "3e7ca9033e997e47",
+                "714f44a72e17a839"
+            ]
+        ]
+    },
+    {
+        "id": "3e7ca9033e997e47",
+        "type": "function",
+        "z": "54fda9e345581e36",
+        "name": "function 1",
+        "func": "msg.payload = msg.payload.available;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 660,
+        "y": 260,
+        "wires": [
+            [
+                "38292309d7a5e9db"
+            ]
+        ]
+    },
+    {
+        "id": "38292309d7a5e9db",
+        "type": "ui_gauge",
+        "z": "54fda9e345581e36",
+        "name": "",
+        "group": "c6893c7d86458fc5",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "gauge",
+        "label": "units",
+        "format": "{{value}}",
+        "min": 0,
+        "max": "4",
+        "colors": [
+            "#00b500",
+            "#e6e600",
+            "#ca3838"
+        ],
+        "seg1": "",
+        "seg2": "",
+        "diff": false,
+        "className": "",
+        "x": 810,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "714f44a72e17a839",
+        "type": "function",
+        "z": "54fda9e345581e36",
+        "name": "function 2",
+        "func": "// Access flow memory for slot session tracking\nlet slotTickets = flow.get(\"slotTickets\") || {};\nlet previousSlots = flow.get(\"previousSlots\") || { slot1: \"Free\", slot2: \"Free\", slot3: \"Free\", slot4: \"Free\" };\n\nlet currentSlots = {\n    slot1: msg.payload.slot1,\n    slot2: msg.payload.slot2,\n    slot3: msg.payload.slot3,\n    slot4: msg.payload.slot4\n};\n\nlet chatId = 6749735109;\nconst RATE_PER_SECOND = 1;\n\nlet messageToSend = null;\n\n// CHECK ALL 4 SLOTS FOR ENTRY OR EXIT\nfor (let s = 1; s <= 4; s++) {\n    let slotKey = \"slot\" + s;\n\n    // In case of an Entry Detection, Slot changed from Free to Occupied\n    if (previousSlots[slotKey] === \"Free\" && currentSlots[slotKey] === \"Occupied\") {\n        let ticketId = \"TICK-\" + Math.floor(1000 + Math.random() * 9000);\n        let entryTime = Date.now();\n\n        // Store ticket against the SPECIFIC slot number\n        slotTickets[slotKey] = { ticketId: ticketId, entryTime: entryTime };\n\n        let text = `🚗 *WELCOME TO PARKING*\\n` +\n            `----------------------------\\n` +\n            `🎟️ *Ticket ID:* \\`${ticketId}\\` (Slot ${s})\\n` +\n            `⏱️ *Entry Time:* ${new Date(entryTime).toLocaleTimeString()}\\n` +\n            `💰 *Rate:* 1 EGP / second\\n\\n` +\n            `*Gate Opening... Please park safely!*`;\n\n        messageToSend = { payload: { chatId: chatId, type: 'message', content: text, options: { parse_mode: 'Markdown' } } };\n    }\n\n    // In case of an Exit Detection, Slot changed from Occupied to Free\n    if (previousSlots[slotKey] === \"Occupied\" && currentSlots[slotKey] === \"Free\") {\n        let session = slotTickets[slotKey];\n\n        if (session) {\n            let exitTime = Date.now();\n            let durationSeconds = Math.max(1, Math.round((exitTime - session.entryTime) / 1000));\n            let totalCost = durationSeconds * RATE_PER_SECOND;\n\n            let receipt = `🧾 *PARKING RECEIPT*\\n` +\n                `----------------------------\\n` +\n                `🎟️ *Ticket ID:* \\`${session.ticketId}\\` (Slot ${s})\\n` +\n                `⏱️ *Duration:* ${durationSeconds} second(s)\\n` +\n                `💵 *Rate:* 1 EGP / second\\n` +\n                `----------------------------\\n` +\n                `💳 *TOTAL DUE:* *${totalCost} EGP*\\n\\n` +\n                `Thank you for parking with us! Have a safe drive! 🚗`;\n\n            // Clear this slot's session\n            delete slotTickets[slotKey];\n\n            messageToSend = { payload: { chatId: chatId, type: 'message', content: receipt, options: { parse_mode: 'Markdown' } } };\n        }\n    }\n}\n\n// Update state memory\nflow.set(\"slotTickets\", slotTickets);\nflow.set(\"previousSlots\", currentSlots);\n\nreturn messageToSend;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 620,
+        "y": 340,
+        "wires": [
+            [
+                "1d3a420607d8606b"
+            ]
+        ]
+    },
+    {
+        "id": "1d3a420607d8606b",
+        "type": "telegram sender",
+        "z": "54fda9e345581e36",
+        "name": "",
+        "bot": "407b3d971536693a",
+        "haserroroutput": false,
+        "outputs": 1,
+        "x": 810,
+        "y": 340,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8dd7db4e7092adcb",
+        "type": "mqtt-broker",
+        "name": "HiveMQ",
+        "broker": "broker.hivemq.com",
+        "port": 1883,
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "c6893c7d86458fc5",
+        "type": "ui_group",
+        "name": "Slots",
+        "tab": "862bbe5c0d30505c",
+        "order": 8,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "407b3d971536693a",
+        "type": "telegram bot",
+        "botname": "NTI_IoT_Parking_System_bot",
+        "usernames": "",
+        "chatids": "",
+        "baseapiurl": "",
+        "testenvironment": false,
+        "updatemode": "polling",
+        "pollinterval": 300,
+        "usesocks": false,
+        "sockshost": "",
+        "socksprotocol": "socks5",
+        "socksport": 6667,
+        "socksusername": "anonymous",
+        "sockspassword": "",
+        "bothost": "",
+        "botpath": "",
+        "localbothost": "0.0.0.0",
+        "localbotport": 8443,
+        "publicbotport": 8443,
+        "privatekey": "",
+        "certificate": "",
+        "useselfsignedcertificate": false,
+        "sslterminated": false,
+        "verboselogging": false
+    },
+    {
+        "id": "862bbe5c0d30505c",
+        "type": "ui_tab",
+        "name": "Home",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "01e1584ff0f9cdf6",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6",
+            "node-red-contrib-telegrambot": "18.1.0"
+        }
+    }
+]
